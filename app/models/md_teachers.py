@@ -8,7 +8,7 @@ class Teacher(db.Model):
     name = Column(String(100))
     subject = Column(String(100))
 
-    def random_id():
+    def random_id(self):
         return random.randint(1, 99999)
 
     def to_json(self):

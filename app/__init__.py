@@ -12,6 +12,8 @@ def create_app():
     def index():
         return "<h1>Hello World in Flask</h1>"
 
+    from .apis import teachers
+    app.register_blueprint(teachers.bp)
     from .apis import evaluations
     app.register_blueprint(evaluations.bp)
 
