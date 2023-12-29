@@ -1,12 +1,25 @@
 from flask import Blueprint, jsonify, request
-from app.db.db_teachers import add_teacher
+from app.db.db_teachers import add_teacher, query_all_teacher
 bp = Blueprint("ApiTeacher", __name__, url_prefix="/api/teacher")
 
 
 @bp.get("/")
 def get_evaluations():
-    data = [{"id": "1", "name": "maestro"}]
-    return jsonify({"status": "ok", "action": "query all", "length": "10", "data": data}), 200
+    try:
+        page = int(request.args.get("page", 1))
+        limit = int(request.args.get("limit", 10))
+
+        # Verificar que offset y limit no sean negativos
+        page = max(page, 1)
+        limit = max(limit, 1)
+        result, length = query_all_teacher(page=page, limit=limit)
+        print(result)
+        return jsonify({"status": "ok", "action": "query all", "length": length, "result": result}), 200
+
+    except ValueError as e:
+        return jsonify({"status": "error", "message": "Invalid offset or limit value"}), 400
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 404
 
 
 @bp.get("<id>")
