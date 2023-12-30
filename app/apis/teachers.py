@@ -3,6 +3,17 @@ from app.db.db_teachers import add_teacher, query_all_teachers, query_teacher, u
 bp = Blueprint("ApiTeacher", __name__, url_prefix="/api/teacher")
 
 
+def get_teacher_json(data):
+    if "name" not in data or "subject" not in data:
+        return None, "name and subject required"
+
+    teacher = {
+        "name": data["name"],
+        "subject": data["subject"]
+    }
+    return teacher, None
+
+
 @bp.get("/")
 def get_evaluations():
     try:
@@ -37,24 +48,33 @@ def get_evaluation(id):
 @bp.post("/")
 def post_evaluation():
     data = request.get_json()
-    name = data["name"]
-    subject = data['subject']
-    result = add_teacher(name, subject)
+    teacher, error = get_teacher_json(data)
 
-    return jsonify({"status": "ok", "action": "add", "length": "1", "result": result})
+    if error is not None:
+        return jsonify({"status": "error", "action": "add", "msg": error}), 404
+
+    result = add_teacher(teacher["name"], teacher['subject'])
+
+    return jsonify({"status": "ok", "action": "add", "length": "1", "result": result}), 200
 
 
 @bp.put("<id>")
 def put_evaluation(id):
     data = request.get_json()
-    name = data["name"]
-    subject = data["subject"]
+
     teacher = query_teacher(id)
 
     if teacher is None:
         return jsonify({"status": "error", "action": "update", "msg": "user not found"}), 404
 
-    result = update_teacher(teacher, name, subject)
+    teacher_dic, error = get_teacher_json(data)
+
+    if error is not None:
+        return jsonify({"status": "error", "action": "update", "msg": error}), 404
+
+    result = update_teacher(
+        teacher, teacher_dic["name"], teacher_dic["subject"])
+
     result = result.to_json()
     return jsonify({"status": "ok", "action": "update", "length": "1", "result": result})
 
