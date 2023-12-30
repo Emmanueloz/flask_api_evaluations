@@ -3,11 +3,11 @@ from app.models.md_teachers import Teacher
 
 
 def add_teacher(name, subject):
-    newTeacher = Teacher(name, subject)
-    db.session.add(newTeacher)
+    new_teacher = Teacher(name, subject)
+    db.session.add(new_teacher)
     db.session.commit()
 
-    return newTeacher.to_json()
+    return new_teacher.to_json()
 
 
 def query_all_teachers(page, limit):
