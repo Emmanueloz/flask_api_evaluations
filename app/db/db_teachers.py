@@ -22,6 +22,13 @@ def query_teacher(id):
     return teacher if teacher is not None else None
 
 
+def query_name_teacher(id):
+    teacher_name = Teacher.query.filter(
+        Teacher.id == id).value(Teacher.name)
+
+    return teacher_name
+
+
 def update_teacher(teacher: Teacher, name: str, subject: str):
     teacher.name = name
     teacher.subject = subject

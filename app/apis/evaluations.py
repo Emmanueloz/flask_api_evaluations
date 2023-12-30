@@ -1,6 +1,37 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
+from app.services.evaluations import get_evaluation_json, add_evaluation_json
+from app.db.db_teachers import query_name_teacher
+from app.db.db_evaluations import add_evaluation
 
 bp = Blueprint("ApiEvaluation", __name__, url_prefix="/api/evaluation")
+
+
+def response_evaluation_json(data):
+    if "id_teacher" not in data or "evaluation_json" not in data:
+        return None, "id_teacher and evaluation_json required"
+
+    if not str(data["id_teacher"]).isdigit():
+        return None, "Id teacher must be integer number"
+
+    teacher_name = query_name_teacher(data["id_teacher"])
+    if teacher_name is None:
+        return None, "Not found teacher"
+
+    evaluation_json: dict = data["evaluation_json"]
+
+    if type(evaluation_json) != dict:
+        return None, "evaluation_json not is a json"
+
+    if "title" not in evaluation_json:
+        return None, "Title is required in evaluate_json"
+
+    evaluation = {
+        "title": evaluation_json["title"],
+        "id_teacher": data["id_teacher"],
+        "teacher_name": teacher_name,
+        "evaluation_json": data["evaluation_json"]
+    }
+    return evaluation, None
 
 
 @bp.get("/")
@@ -11,14 +42,25 @@ def get_evaluations():
 
 @bp.get("<id>")
 def get_evaluation(id):
-    data = {"id": id}
-    return jsonify({"status": "ok", "action": "query", "length": "1", "data": data})
+    result = get_evaluation_json(id)
+    length = 0 if result is None else 1
+    status_code = 200 if length == 1 else 404
+    return jsonify({"status": "ok", "action": "query", "length": length, "result": result}), status_code
 
 
-@bp.post("<id>")
-def post_evaluation(id):
-    data = {"id": id}
-    return jsonify({"status": "ok", "action": "add", "length": "1", "data": data})
+@bp.post("/")
+def post_evaluation():
+    data = request.get_json()
+    evaluation, error = response_evaluation_json(data)
+    if error is not None:
+        return jsonify({"status": "error", "action": "add", "msg": error}), 404
+    evaluation_json: dict = evaluation["evaluation_json"]
+
+    response_firebase = add_evaluation_json(evaluation["evaluation_json"])
+    add_evaluation(
+        response_firebase["name"], evaluation_json["title"], evaluation["id_teacher"])
+
+    return jsonify({"status": "ok", "action": "add", "length": "1", "response": evaluation})
 
 
 @bp.put("<id>")
