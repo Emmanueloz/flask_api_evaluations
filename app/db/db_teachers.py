@@ -19,4 +19,11 @@ def query_all_teachers(page, limit):
 
 def query_teacher(id):
     teacher: Teacher = Teacher.query.get(id)
-    return teacher.to_json() if teacher is not None else None
+    return teacher if teacher is not None else None
+
+
+def update_teacher(teacher: Teacher, name: str, subject: str):
+    teacher.name = name
+    teacher.subject = subject
+    db.session.commit()
+    return teacher
