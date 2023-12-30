@@ -27,3 +27,13 @@ def update_teacher(teacher: Teacher, name: str, subject: str):
     teacher.subject = subject
     db.session.commit()
     return teacher
+
+
+def delete_teacher(id):
+    teacher: Teacher = query_teacher(id)
+    if teacher is None:
+        return None
+
+    db.session.delete(teacher)
+    db.session.commit()
+    return teacher
