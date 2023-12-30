@@ -68,9 +68,10 @@ def post_evaluation():
 
     evaluation_json: dict = evaluation["evaluation_json"]
     evaluation_json["teacher_name"] = evaluation["teacher_name"]
+    evaluation_json["id_teacher"] = evaluation["id_teacher"]
 
     response_firebase = add_evaluation_json(evaluation["evaluation_json"])
-
+    evaluation["id"] = response_firebase["name"]
     add_evaluation(
         response_firebase["name"], evaluation_json["title"], evaluation["id_teacher"])
 
