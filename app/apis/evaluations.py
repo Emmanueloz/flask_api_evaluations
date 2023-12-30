@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from app.services.evaluations import get_evaluation_json, add_evaluation_json
 from app.db.db_teachers import query_name_teacher
-from app.db.db_evaluations import add_evaluation
+from app.db.db_evaluations import add_evaluation, query_all_evaluations
 
 bp = Blueprint("ApiEvaluation", __name__, url_prefix="/api/evaluation")
 
@@ -36,8 +36,19 @@ def response_evaluation_json(data):
 
 @bp.get("/")
 def get_evaluations():
-    data = [{"id": "1"}]
-    return jsonify({"status": "ok", "action": "query all", "length": "10", "data": data}), 200
+    try:
+        page = int(request.args.get("page", 1))
+        limit = int(request.args.get("limit", 10))
+
+        page = max(page, 1)
+        limit = max(limit, 1)
+        result, length = query_all_evaluations(page=page, limit=limit)
+        return jsonify({"status": "ok", "action": "query all", "length": length, "result": result}), 200
+
+    except ValueError as e:
+        return jsonify({"status": "error", "message": "Invalid offset or limit value"}), 400
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 404
 
 
 @bp.get("<id>")
@@ -54,9 +65,12 @@ def post_evaluation():
     evaluation, error = response_evaluation_json(data)
     if error is not None:
         return jsonify({"status": "error", "action": "add", "msg": error}), 404
+
     evaluation_json: dict = evaluation["evaluation_json"]
+    evaluation_json["teacher_name"] = evaluation["teacher_name"]
 
     response_firebase = add_evaluation_json(evaluation["evaluation_json"])
+
     add_evaluation(
         response_firebase["name"], evaluation_json["title"], evaluation["id_teacher"])
 
