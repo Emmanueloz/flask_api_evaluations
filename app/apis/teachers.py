@@ -81,8 +81,9 @@ def put_evaluation(id):
 
 @bp.delete("<id>")
 def delete_evaluation(id):
-    result = delete_teacher(id)
+    result, error = delete_teacher(id)
     if result is None:
-        return jsonify({"status": "error", "action": "delete", "msg": "user not found"}), 404
+        return jsonify({"status": "error", "action": "delete", "msg": error}), 404
+
     result = result.to_json()
     return jsonify({"status": "ok", "action": "delete", "length": "1", "result": result})

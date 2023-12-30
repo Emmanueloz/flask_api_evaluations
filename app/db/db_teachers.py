@@ -39,8 +39,11 @@ def update_teacher(teacher: Teacher, name: str, subject: str):
 def delete_teacher(id):
     teacher: Teacher = query_teacher(id)
     if teacher is None:
-        return None
+        return None, "The teacher didn't find"
+
+    if teacher.evaluations:
+        return None, "You can't eliminate the teacher because he has associated evaluations"
 
     db.session.delete(teacher)
     db.session.commit()
-    return teacher
+    return teacher, None
