@@ -20,3 +20,9 @@ def add_evaluation_json(evaluation: dict):
     url = URL_EVALUATION + "evaluations.json"
     response = requests.post(url=url, json=evaluation)
     return response.json()
+
+
+def delete_evaluation_json(id: str):
+    url = URL_EVALUATION + "evaluations/" + id + ".json"
+    response = requests.delete(url)
+    return response.status_code

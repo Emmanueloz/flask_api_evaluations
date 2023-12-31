@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
-from app.services.evaluations import get_evaluation_json, add_evaluation_json
+from app.services.evaluations import get_evaluation_json, add_evaluation_json, delete_evaluation_json
 from app.db.db_teachers import query_name_teacher
-from app.db.db_evaluations import add_evaluation, query_all_evaluations
+from app.db.db_evaluations import add_evaluation, del_evaluation, query_all_evaluations
 
 bp = Blueprint("ApiEvaluation", __name__, url_prefix="/api/evaluation")
 
@@ -86,5 +86,10 @@ def put_evaluation(id):
 
 @bp.delete("<id>")
 def delete_evaluation(id):
-    data = {"id": id}
-    return jsonify({"status": "ok", "action": "delete", "length": "1", "data": data})
+    response, error = del_evaluation(id)
+    if error is not None:
+        return jsonify({"status": "error", "action": "delete", "msg": error}), 404
+
+    result = get_evaluation_json(id)
+    status_code = delete_evaluation_json(id)
+    return jsonify({"status": "ok", "action": "delete", "length": "1", "data": result}), status_code

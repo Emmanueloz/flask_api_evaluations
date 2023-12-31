@@ -28,11 +28,11 @@ def update_evaluation(evaluation: Evaluations, id_teacher: int, title: str):
     return evaluation
 
 
-def delete_evaluations(id):
+def del_evaluation(id):
     evaluation: Evaluations = query_evaluation(id)
     if evaluation is None:
-        return None
+        return None, "evaluation not found"
 
     db.session.delete(evaluation)
     db.session.commit()
-    return evaluation
+    return evaluation, None
