@@ -36,7 +36,7 @@ def update_teacher(teacher: Teacher, name: str, subject: str):
     return teacher
 
 
-def delete_teacher(id):
+def del_teacher(id):
     teacher: Teacher = query_teacher(id)
     if teacher is None:
         return None, "The teacher didn't find"

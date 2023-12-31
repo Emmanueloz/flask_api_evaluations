@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from app.db.db_teachers import add_teacher, query_all_teachers, query_teacher, update_teacher, delete_teacher
+from app.db.db_teachers import add_teacher, query_all_teachers, query_teacher, update_teacher, del_teacher
 bp = Blueprint("ApiTeacher", __name__, url_prefix="/api/teacher")
 
 
@@ -15,7 +15,7 @@ def get_teacher_json(data):
 
 
 @bp.get("/")
-def get_evaluations():
+def get_teachers():
     try:
         page = int(request.args.get("page", 1))
         limit = int(request.args.get("limit", 10))
@@ -32,7 +32,7 @@ def get_evaluations():
 
 
 @bp.get("<id>")
-def get_evaluation(id):
+def get_teacher(id):
     try:
         id = int(id)
         result = query_teacher(id)
@@ -46,7 +46,7 @@ def get_evaluation(id):
 
 
 @bp.post("/")
-def post_evaluation():
+def post_teacher():
     data = request.get_json()
     teacher, error = get_teacher_json(data)
 
@@ -59,13 +59,13 @@ def post_evaluation():
 
 
 @bp.put("<id>")
-def put_evaluation(id):
+def put_teacher(id):
     data = request.get_json()
 
     teacher = query_teacher(id)
 
     if teacher is None:
-        return jsonify({"status": "error", "action": "update", "msg": "user not found"}), 404
+        return jsonify({"status": "error", "action": "update", "msg": "teacher not found"}), 404
 
     teacher_dic, error = get_teacher_json(data)
 
@@ -80,8 +80,8 @@ def put_evaluation(id):
 
 
 @bp.delete("<id>")
-def delete_evaluation(id):
-    result, error = delete_teacher(id)
+def delete_teacher(id):
+    result, error = del_teacher(id)
     if result is None:
         return jsonify({"status": "error", "action": "delete", "msg": error}), 404
 
