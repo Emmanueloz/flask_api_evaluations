@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
-from app.services.evaluations import get_evaluation_json, add_evaluation_json, delete_evaluation_json
+from app.services.evaluations import get_evaluation_json, add_evaluation_json, delete_evaluation_json, update_evaluation_json
+from app.db.db_evaluations import add_evaluation, del_evaluation, query_all_evaluations, update_evaluation, query_evaluation
 from app.db.db_teachers import query_name_teacher, query_teacher
-from app.db.db_evaluations import add_evaluation, del_evaluation, query_all_evaluations
 
 bp = Blueprint("ApiEvaluation", __name__, url_prefix="/api/evaluation")
 
@@ -91,8 +91,26 @@ def post_evaluation():
 
 @bp.put("<id>")
 def put_evaluation(id):
-    data = {"id": id}
-    return jsonify({"status": "ok", "action": "modify", "length": "1", "data": data})
+    data = request.get_json()
+
+    evaluation = query_evaluation(id)
+    if evaluation is None:
+        return jsonify({"status": "error", "action": "update", "msg": "evaluation not found"}), 404
+
+    evaluation_dict, error = response_evaluation_json(data)
+
+    if error is not None:
+        return jsonify({"status": "error", "action": "update", "msg": error}), 404
+
+    evaluation_json = evaluation_dict["evaluation_json"]
+    evaluation_json["id_teacher"] = evaluation_dict["id_teacher"]
+
+    update_evaluation_json(id, evaluation_json)
+
+    update_evaluation(
+        evaluation, evaluation_dict["id_teacher"], evaluation_dict["title"])
+
+    return jsonify({"status": "ok", "action": "update", "length": "1", "response": evaluation_dict})
 
 
 @bp.delete("<id>")

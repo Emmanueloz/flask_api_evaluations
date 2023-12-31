@@ -26,3 +26,9 @@ def delete_evaluation_json(id: str):
     url = URL_EVALUATION + "evaluations/" + id + ".json"
     response = requests.delete(url)
     return response.status_code
+
+
+def update_evaluation_json(id: str, evaluation: dict):
+    url = URL_EVALUATION + "evaluations/" + id + ".json"
+    response = requests.put(url=url, json=evaluation)
+    return response.json()
