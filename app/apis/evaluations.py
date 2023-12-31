@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.services.evaluations import get_evaluation_json, add_evaluation_json, delete_evaluation_json
-from app.db.db_teachers import query_name_teacher
+from app.db.db_teachers import query_name_teacher, query_teacher
 from app.db.db_evaluations import add_evaluation, del_evaluation, query_all_evaluations
 
 bp = Blueprint("ApiEvaluation", __name__, url_prefix="/api/evaluation")
@@ -53,10 +53,22 @@ def get_evaluations():
 
 @bp.get("<id>")
 def get_evaluation(id):
-    result = get_evaluation_json(id)
-    length = 0 if result is None else 1
-    status_code = 200 if length == 1 else 404
-    return jsonify({"status": "ok", "action": "query", "length": length, "result": result}), status_code
+    result: dict = get_evaluation_json(id)
+
+    if result is None:
+        return jsonify({"status": "ok", "action": "query", "length": 0, "result": result}), 404
+
+    teacher = query_teacher(result["id_teacher"])
+
+    if teacher is None:
+        return jsonify({"status": "error", "action": "query", "msg": "teacher not found"}), 404
+
+    result.pop("id_teacher")
+
+    result["teacher"] = teacher.to_json()
+    result['id'] = id
+
+    return jsonify({"status": "ok", "action": "query", "length": 1, "result": result}), 200
 
 
 @bp.post("/")
@@ -67,7 +79,6 @@ def post_evaluation():
         return jsonify({"status": "error", "action": "add", "msg": error}), 404
 
     evaluation_json: dict = evaluation["evaluation_json"]
-    evaluation_json["teacher_name"] = evaluation["teacher_name"]
     evaluation_json["id_teacher"] = evaluation["id_teacher"]
 
     response_firebase = add_evaluation_json(evaluation["evaluation_json"])
