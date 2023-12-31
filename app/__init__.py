@@ -1,5 +1,6 @@
 from flask import Flask
 from .config import Config
+from .jwt import jwtm
 
 
 def create_app():
@@ -7,6 +8,7 @@ def create_app():
     app.config.from_object(Config)
     from .db.connection import db
     db.init_app(app)
+    jwtm.init_app(app)
 
     @app.route("/")
     def index():
@@ -16,6 +18,8 @@ def create_app():
     app.register_blueprint(teachers.bp)
     from .apis import evaluations
     app.register_blueprint(evaluations.bp)
+    from .apis import auth
+    app.register_blueprint(auth.bp)
 
     with app.app_context():
         db.create_all()
