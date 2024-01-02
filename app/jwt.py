@@ -13,4 +13,5 @@ def user_identity_lookup(user):
 def user_lookup_callback(_jwt_header, jwt_data):
     # print(jwt_data)
     identity = jwt_data["sub"]
-    return query_user(identity)
+    user, error = query_user(identity)
+    return user

@@ -27,3 +27,12 @@ def query_user(username):
     except Exception as e:
         print(e)
         return None, "Error when adding the user"
+
+
+def query_all_users(page, limit):
+    result = Users.query.paginate(page=page, per_page=limit)
+    print(result.__dict__)
+    users: list[Users] = result.items
+    items = [item.to_json() for item in users]
+    length = len(items)
+    return items, length
