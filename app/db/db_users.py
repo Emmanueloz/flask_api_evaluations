@@ -16,3 +16,14 @@ def add_user(data: dict):
     except Exception as e:
         print((e))
         return None, "Error when adding the user"
+
+
+def query_user(username):
+    try:
+        user: Users = Users.query.get(username)
+        if user is None:
+            return None, "user not found"
+        return user, None
+    except Exception as e:
+        print(e)
+        return None, "Error when adding the user"

@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.db.db_teachers import add_teacher, query_all_teachers, query_teacher, update_teacher, del_teacher
+from flask_jwt_extended import jwt_required
 bp = Blueprint("ApiTeacher", __name__, url_prefix="/api/teacher")
 
 
