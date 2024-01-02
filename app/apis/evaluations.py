@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required
 from app.services.evaluations import get_evaluation_json, add_evaluation_json, delete_evaluation_json, update_evaluation_json
 from app.db.db_evaluations import add_evaluation, del_evaluation, query_all_evaluations, update_evaluation, query_evaluation
 from app.db.db_teachers import query_name_teacher, query_teacher
@@ -35,6 +36,7 @@ def response_evaluation_json(data):
 
 
 @bp.get("/")
+@jwt_required()
 def get_evaluations():
     try:
         page = int(request.args.get("page", 1))
@@ -52,6 +54,7 @@ def get_evaluations():
 
 
 @bp.get("<id>")
+@jwt_required()
 def get_evaluation(id):
     result: dict = get_evaluation_json(id)
 
@@ -72,6 +75,7 @@ def get_evaluation(id):
 
 
 @bp.post("/")
+@jwt_required()
 def post_evaluation():
     data = request.get_json()
     evaluation, error = response_evaluation_json(data)
@@ -90,6 +94,7 @@ def post_evaluation():
 
 
 @bp.put("<id>")
+@jwt_required()
 def put_evaluation(id):
     data = request.get_json()
 
@@ -114,6 +119,7 @@ def put_evaluation(id):
 
 
 @bp.delete("<id>")
+@jwt_required()
 def delete_evaluation(id):
     response, error = del_evaluation(id)
     if error is not None:

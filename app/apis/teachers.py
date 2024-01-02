@@ -16,6 +16,7 @@ def get_teacher_json(data):
 
 
 @bp.get("/")
+@jwt_required()
 def get_teachers():
     try:
         page = int(request.args.get("page", 1))
@@ -33,6 +34,7 @@ def get_teachers():
 
 
 @bp.get("<id>")
+@jwt_required()
 def get_teacher(id):
     try:
         id = int(id)
@@ -47,6 +49,7 @@ def get_teacher(id):
 
 
 @bp.post("/")
+@jwt_required()
 def post_teacher():
     data = request.get_json()
     teacher, error = get_teacher_json(data)
@@ -60,6 +63,7 @@ def post_teacher():
 
 
 @bp.put("<id>")
+@jwt_required()
 def put_teacher(id):
     data = request.get_json()
 
@@ -81,6 +85,7 @@ def put_teacher(id):
 
 
 @bp.delete("<id>")
+@jwt_required()
 def delete_teacher(id):
     result, error = del_teacher(id)
     if result is None:
