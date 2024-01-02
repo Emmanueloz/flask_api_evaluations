@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.db.db_teachers import add_teacher, query_all_teachers, query_teacher, update_teacher, del_teacher
-from flask_jwt_extended import jwt_required
+from app.roles import jwt_rol_required, ROL
 bp = Blueprint("ApiTeacher", __name__, url_prefix="/api/teacher")
 
 
@@ -16,7 +16,7 @@ def get_teacher_json(data):
 
 
 @bp.get("/")
-@jwt_required()
+@jwt_rol_required([ROL.ADMIN])
 def get_teachers():
     try:
         page = int(request.args.get("page", 1))
@@ -34,7 +34,7 @@ def get_teachers():
 
 
 @bp.get("<id>")
-@jwt_required()
+@jwt_rol_required([ROL.ADMIN])
 def get_teacher(id):
     try:
         id = int(id)
@@ -49,7 +49,7 @@ def get_teacher(id):
 
 
 @bp.post("/")
-@jwt_required()
+@jwt_rol_required([ROL.ADMIN])
 def post_teacher():
     data = request.get_json()
     teacher, error = get_teacher_json(data)
@@ -63,7 +63,7 @@ def post_teacher():
 
 
 @bp.put("<id>")
-@jwt_required()
+@jwt_rol_required([ROL.ADMIN])
 def put_teacher(id):
     data = request.get_json()
 
@@ -85,7 +85,7 @@ def put_teacher(id):
 
 
 @bp.delete("<id>")
-@jwt_required()
+@jwt_rol_required([ROL.ADMIN])
 def delete_teacher(id):
     result, error = del_teacher(id)
     if result is None:
