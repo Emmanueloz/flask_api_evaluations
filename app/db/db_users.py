@@ -47,12 +47,14 @@ def update_teacher(id: str, data: dict):
         if error is not None:
             return None, error
 
-        if data["username"] == "admin":
+        if teacher.username == "admin" and data["username"] != "admin":
             return None, "You can't update the admin user"
+
+        passwd_hash = generate_password_hash(data["passwd"])
 
         teacher.username = data["username"]
         teacher.email = data["email"]
-        teacher.passwd = data["passwd"]
+        teacher.passwd = passwd_hash
         teacher.rol = data["rol"]
         teacher.id_teacher = data["id_teacher"]
         db.session.commit()
