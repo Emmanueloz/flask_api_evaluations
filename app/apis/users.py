@@ -21,3 +21,15 @@ def get_users():
         return jsonify({"status": "error", "message": "Invalid offset or limit value"}), 400
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 404
+
+
+@bp.get("<id>")
+@jwt_rol_required([ROL.ADMIN, ROL.TEACHER])
+def get_user(id):
+
+    teacher, error = query_user(id)
+
+    if teacher is None:
+        return jsonify({"status": "error", "action": "query", "msg": error}), 404
+
+    return jsonify({"status": "ok", "action": "query", "length": 1, "result": teacher.to_json()}), 200

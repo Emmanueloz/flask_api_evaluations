@@ -1,11 +1,15 @@
 from app.db.connection import db
 from app.models.md_users import Users
 from sqlalchemy.exc import IntegrityError
+from werkzeug.security import generate_password_hash
 
 
 def add_user(data: dict):
+
+    passwd_hash = generate_password_hash(data["passwd"])
+
     new_user: Users = Users(data["username"], data["email"],
-                            data["passwd"], data["rol"], data["id_teacher"])
+                            passwd_hash, data["rol"], data["id_teacher"])
     try:
         db.session.add(new_user)
         db.session.commit()

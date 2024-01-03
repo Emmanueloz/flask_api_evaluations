@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from app.db.db_users import add_user, query_user, query_all_users
-from werkzeug.security import check_password_hash, generate_password_hash
+from app.db.db_users import add_user, query_user
+from werkzeug.security import check_password_hash
 from flask_jwt_extended import create_access_token
 from app.roles import jwt_rol_required, ROL
 from app.utils.data_user import response_user_json
@@ -13,12 +13,13 @@ def sign_up():
     data = request.get_json()
     user, error = response_user_json(data)
 
+    roles = [ROL.TEACHER, ROL.STUDENT]
+
     if error is not None:
-        return jsonify({"status": "error", "action": "add", "msg": error}), 404
+        return jsonify({"status": "error", "action": "add", "msg": error}), 400
 
-    passwd_hash = generate_password_hash(user["passwd"])
-
-    user["passwd"] = passwd_hash
+    if user["rol"] == ROL.ADMIN or user["rol"] not in roles:
+        return jsonify({"status": "error", "action": "add", "msg": "invalid role"}), 401
 
     response, error = add_user(user)
 
@@ -35,7 +36,7 @@ def login():
         data, email_required=False, rol_required=False, id_teacher_required=False)
 
     if error is not None:
-        return jsonify({"status": "error", "action": "add", "msg": error}), 500
+        return jsonify({"status": "error", "action": "add", "msg": error}), 400
 
     user, error = query_user(data["username"])
 
