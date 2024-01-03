@@ -2,7 +2,8 @@ from flask import Blueprint, request, jsonify
 from app.db.db_users import add_user, query_user, query_all_users
 from app.db.db_teachers import query_teacher
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_jwt_extended import create_access_token, jwt_required
+from flask_jwt_extended import create_access_token
+from app.roles import jwt_rol_required, ROL
 bp = Blueprint("AuthApi", __name__, url_prefix="/api/auth")
 
 
@@ -32,7 +33,7 @@ def response_user_json(data, email_required=True, rol_required=True, id_teacher_
 
 
 @bp.get("/")
-@jwt_required()
+@jwt_rol_required([ROL.ADMIN])
 def get_users():
     try:
         page = int(request.args.get("page", 1))
