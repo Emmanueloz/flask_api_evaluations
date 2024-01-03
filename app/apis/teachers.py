@@ -1,18 +1,8 @@
 from flask import Blueprint, jsonify, request
 from app.db.db_teachers import add_teacher, query_all_teachers, query_teacher, update_teacher, del_teacher
 from app.roles import jwt_rol_required, ROL
+from app.utils.data_teacher import response_teacher_json
 bp = Blueprint("ApiTeacher", __name__, url_prefix="/api/teacher")
-
-
-def get_teacher_json(data):
-    if "name" not in data or "subject" not in data:
-        return None, "name and subject required"
-
-    teacher = {
-        "name": data["name"],
-        "subject": data["subject"]
-    }
-    return teacher, None
 
 
 @bp.get("/")
@@ -52,7 +42,7 @@ def get_teacher(id):
 @jwt_rol_required([ROL.ADMIN])
 def post_teacher():
     data = request.get_json()
-    teacher, error = get_teacher_json(data)
+    teacher, error = response_teacher_json(data)
 
     if error is not None:
         return jsonify({"status": "error", "action": "add", "msg": error}), 404
@@ -72,7 +62,7 @@ def put_teacher(id):
     if teacher is None:
         return jsonify({"status": "error", "action": "update", "msg": "teacher not found"}), 404
 
-    teacher_dic, error = get_teacher_json(data)
+    teacher_dic, error = response_teacher_json(data)
 
     if error is not None:
         return jsonify({"status": "error", "action": "update", "msg": error}), 404
