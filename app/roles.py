@@ -14,8 +14,6 @@ def jwt_rol_required(roles):
         @wraps(func)
         @jwt_required()
         def wrapper(*args, **kwargs):
-            print(roles)
-            print(current_user.rol)
 
             if current_user.rol not in roles:
                 return jsonify({"status": "error", "message": "Permission denied. does not have the necessary permission"}), 403

@@ -22,5 +22,6 @@ def response_user_json(data, email_required=True, rol_required=True, id_teacher_
         return None, "teacher not found"
 
     auth = {field: str(data[field]) for field in required_fields}
+    auth["id_teacher"] = id_teacher
 
     return auth, None

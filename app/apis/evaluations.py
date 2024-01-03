@@ -54,7 +54,7 @@ def get_evaluations():
 
 
 @bp.get("<id>")
-@jwt_rol_required([ROL.ADMIN, ROL.TEACHER])
+@jwt_rol_required([ROL.ADMIN, ROL.TEACHER, ROL.STUDENT])
 def get_evaluation(id):
     result: dict = get_evaluation_json(id)
 

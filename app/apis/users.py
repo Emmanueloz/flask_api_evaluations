@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.db.db_users import add_user, query_user, query_all_users
 from app.roles import jwt_rol_required, ROL
+from app.utils.data_user import response_user_json
 
 bp = Blueprint("UserApi", __name__, url_prefix="/api/user")
 
@@ -33,3 +34,35 @@ def get_user(id):
         return jsonify({"status": "error", "action": "query", "msg": error}), 404
 
     return jsonify({"status": "ok", "action": "query", "length": 1, "result": teacher.to_json()}), 200
+
+
+@bp.post("/")
+@jwt_rol_required([ROL.ADMIN])
+def post_user():
+    try:
+        data = request.get_json()
+        user_dic, error = response_user_json(data, id_teacher_required=False)
+        print(user_dic)
+        roles = [ROL.TEACHER, ROL.STUDENT, ROL.ADMIN]
+
+        if error is not None:
+            return jsonify({"status": "error", "action": "add", "message": error}), 400
+
+        if user_dic["rol"] not in roles:
+            return jsonify({"status": "error", "action": "add", "msg": "invalid role"}), 401
+
+        user, error = add_user(user_dic)
+
+        if error is not None:
+            return jsonify({"status": "error", "action": "add", "message": error}), 400
+
+        return jsonify({"status": "ok", "action": "add", "result": user}), 201
+    except Exception as e:
+        print(e)
+        return jsonify({"status": "error", "message": str(e)}), 400
+
+
+@bp.put("<id>")
+@jwt_rol_required([ROL.ADMIN])
+def put_user(id):
+    return jsonify({"status": "error", "message": "Not implemented"}), 501
