@@ -65,3 +65,20 @@ def update_teacher(id: str, data: dict):
     except Exception as e:
         print(e)
         return None, "Error when updating the user"
+
+
+def del_user(id: str):
+    try:
+        user, error = query_user(id)
+        if error is not None:
+            return None, error
+
+        if user.username == "admin":
+            return None, "You can't delete the admin user"
+
+        db.session.delete(user)
+        db.session.commit()
+        return user, None
+    except Exception as e:
+        print(e)
+        return None, "Error when deleting the user"

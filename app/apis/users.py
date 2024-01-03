@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.db.db_users import add_user, query_user, query_all_users, update_teacher
+from app.db.db_users import add_user, query_user, query_all_users, update_teacher, del_user
 from app.roles import jwt_rol_required, ROL
 from app.utils.data_user import response_user_json
 
@@ -77,5 +77,19 @@ def put_user(id):
             return jsonify({"status": "error", "action": "update", "message": error}), 400
 
         return jsonify({"status": "ok", "action": "update", "result": teacher.to_json()}), 200
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 400
+
+
+@bp.delete("<id>")
+@jwt_rol_required([ROL.ADMIN])
+def delete_user(id):
+    try:
+        user, error = del_user(id)
+
+        if error is not None:
+            return jsonify({"status": "error", "action": "delete", "message": error}), 400
+
+        return jsonify({"status": "ok", "action": "delete", "result": user.to_json()}), 200
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 400
