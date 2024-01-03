@@ -35,8 +35,31 @@ def query_user(username):
 
 def query_all_users(page, limit):
     result = Users.query.paginate(page=page, per_page=limit)
-    print(result.__dict__)
     users: list[Users] = result.items
     items = [item.to_json() for item in users]
     length = len(items)
     return items, length
+
+
+def update_teacher(id: str, data: dict):
+    try:
+        teacher, error = query_user(id)
+        if error is not None:
+            return None, error
+
+        if data["username"] == "admin":
+            return None, "You can't update the admin user"
+
+        teacher.username = data["username"]
+        teacher.email = data["email"]
+        teacher.passwd = data["passwd"]
+        teacher.rol = data["rol"]
+        teacher.id_teacher = data["id_teacher"]
+        db.session.commit()
+        return teacher, None
+    except IntegrityError as e:
+        print(e)
+        return None, "Integrity error when adding username or mail already exists"
+    except Exception as e:
+        print(e)
+        return None, "Error when updating the user"

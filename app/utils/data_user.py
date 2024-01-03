@@ -21,6 +21,13 @@ def response_user_json(data, email_required=True, rol_required=True, id_teacher_
     if id_teacher is not None and query_teacher(id_teacher) is None:
         return None, "teacher not found"
 
+    # verificar que los datos no estén vacíos
+    empty_fields = [
+        field for field in required_fields if data[field] == "" or data[field] is None]
+
+    if empty_fields:
+        return None, f"{empty_fields[0]} is empty"
+
     auth = {field: str(data[field]) for field in required_fields}
     auth["id_teacher"] = id_teacher
 
