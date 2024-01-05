@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, request
+from flask_cors import CORS
 
 from app.db.db_users import add_user, query_user
 from .config import Config
@@ -9,8 +10,17 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     from .db.connection import db
+    CORS(app, supports_credentials=True)
     db.init_app(app)
     jwtm.init_app(app)
+
+    @app.before_request
+    def before_request():
+        if request.method == 'OPTIONS':
+            response = app.make_default_options_response()
+            response.headers['Access-Control-Allow-Headers'] = '*'
+            response.headers['Access-Control-Allow-Methods'] = '*'
+            return response
 
     @app.route("/")
     def index():

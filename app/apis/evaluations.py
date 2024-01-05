@@ -3,6 +3,7 @@ from app.services.evaluations import get_evaluation_json, add_evaluation_json, d
 from app.db.db_evaluations import add_evaluation, del_evaluation, query_all_evaluations, update_evaluation, query_evaluation
 from app.db.db_teachers import query_name_teacher, query_teacher
 from app.roles import jwt_rol_required, ROL
+from flask_cors import cross_origin
 
 bp = Blueprint("ApiEvaluation", __name__, url_prefix="/api/evaluation")
 
